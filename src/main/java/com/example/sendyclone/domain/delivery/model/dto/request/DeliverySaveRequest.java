@@ -1,0 +1,63 @@
+package com.example.sendyclone.domain.delivery.model.dto.request;
+
+import com.example.sendyclone.domain.delivery.model.DeliveryAddress;
+import com.example.sendyclone.domain.delivery.model.DeliveryCategory;
+import com.example.sendyclone.domain.delivery.model.entity.Delivery;
+import com.example.sendyclone.domain.delivery.model.entity.StopOver;
+import com.example.sendyclone.domain.driver.model.Vehicle;
+import com.example.sendyclone.domain.member.model.entity.Member;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.Embedded;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class DeliverySaveRequest {
+
+    @Embedded
+    @NotNull(message = "배송 카테고리는 필수 입력 항목입니다.")
+    private DeliveryCategory deliveryCategory;
+
+    @NotNull(message = "배송 날짜는 필수 입력 항목입니다.")
+    private LocalDateTime deliveryDate;
+
+    @Embedded
+    @NotNull(message = "차량 정보는 필수 입력 항목입니다.")
+    private Vehicle vehicle;
+
+    @Embedded
+    @NotNull(message = "배송 주소는 필수 입력 항목입니다.")
+    private DeliveryAddress deliveryAddress;
+
+    @Embedded
+    @Nullable
+    private List<DeliveryAddress> stopOverAddresses;
+
+    @NotNull(message = "배송 옵션은 필수 입력 항목입니다.")
+    private String deliveryOptions;
+
+    public Delivery toDelivery() {
+        return Delivery.builder()
+                .deliveryCategory(deliveryCategory)
+                .deliveryDate(deliveryDate)
+                .vehicle(vehicle)
+                .deliveryAddress(deliveryAddress)
+                .deliveryOptions(deliveryOptions)
+                .build();
+    }
+
+    public List<StopOver> toStopOvers() {
+        return stopOverAddresses.stream()
+                .map(address -> StopOver.builder()
+                        .deliveryAddress(address)
+                        .build())
+                .toList();
+    }
+}
