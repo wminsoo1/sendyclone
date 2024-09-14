@@ -1,6 +1,7 @@
 package com.example.sendyclone.domain.delivery.controller;
 
 import com.example.sendyclone.domain.delivery.model.dto.request.DeliverySaveRequest;
+import com.example.sendyclone.domain.delivery.model.dto.request.DeliveryUpdateRequest;
 import com.example.sendyclone.domain.delivery.model.dto.response.DeliveryDetailResponse;
 import com.example.sendyclone.domain.delivery.model.dto.response.DeliverySaveResponse;
 import com.example.sendyclone.domain.delivery.model.dto.response.DeliverySummaryResponse;
@@ -28,6 +29,19 @@ public class DeliveryController {
         final DeliverySaveResponse deliverySaveResponse = deliveryService.saveDelivery(deliverySaveRequest, memberId);
 
         return ResponseEntity.ok().body(deliverySaveResponse);
+    }
+
+    @PostMapping("/delivery/update/{deliveryId}")
+    public void updateDelivery(
+            @PathVariable("deliveryId") Long deliveryId, //Spring Security 추가하면 변경!
+            @Valid @RequestBody DeliveryUpdateRequest deliveryUpdateRequest) {
+        deliveryService.updateDelivery(deliveryId, deliveryUpdateRequest);
+    }
+
+    @DeleteMapping("/delivery/delete/{deliveryId}")
+    public void deleteDelivery(
+            @PathVariable("deliveryId") Long deliveryId) {
+        deliveryService.deleteDelivery(deliveryId);
     }
 
     @GetMapping("/deliveryDetail")

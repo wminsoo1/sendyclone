@@ -3,6 +3,7 @@ package com.example.sendyclone.domain.delivery.model.entity;
 import com.example.sendyclone.domain.delivery.model.DeliveryAddress;
 import com.example.sendyclone.domain.delivery.model.DeliveryCategory;
 import com.example.sendyclone.domain.delivery.model.DeliveryStatus;
+import com.example.sendyclone.domain.delivery.model.dto.request.DeliveryUpdateRequest;
 import com.example.sendyclone.domain.driver.model.Driver;
 import com.example.sendyclone.domain.driver.model.Vehicle;
 import com.example.sendyclone.domain.member.model.entity.Member;
@@ -68,6 +69,13 @@ public class Delivery {
 
     public void updateReservationNumber(String reservationNumber) {
         this.reservationNumber = reservationNumber;
+    }
+
+    public void update(DeliveryUpdateRequest deliveryUpdateRequest) {
+        this.deliveryAddress = deliveryAddress.update(deliveryUpdateRequest.getDeliveryAddress());
+        this.vehicle = vehicle.update(deliveryUpdateRequest.getVehicle());
+        this.deliveryDate = deliveryUpdateRequest.getDeliveryDate();
+        this.deliveryOptions = deliveryUpdateRequest.getDeliveryOptions();
     }
 
     private Delivery(Long id, Member member, Driver driver, DeliveryStatus deliveryStatus, String reservationNumber, DeliveryCategory deliveryCategory, LocalDateTime deliveryDate, Vehicle vehicle, DeliveryAddress deliveryAddress, double deliveryFee, String deliveryOptions) {
