@@ -1,12 +1,15 @@
 package com.example.sendyclone.domain.member.service;
 
-import com.example.sendyclone.domain.member.exception.DuplicatePasswordException;
+import com.example.sendyclone.domain.member.exception.MemberErrorCode;
+import com.example.sendyclone.domain.member.exception.MemberException;
 import com.example.sendyclone.domain.member.model.entity.Member;
 import com.example.sendyclone.domain.member.model.request.MemberSaveRequest;
 import com.example.sendyclone.domain.member.model.response.MemberSaveResponse;
 import com.example.sendyclone.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import static com.example.sendyclone.domain.member.exception.MemberErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +30,7 @@ public class MemberService {
     private void validateDuplicateEmail(String email) {
         final boolean isDuplicate = memberRepository.findMemberByEmail(email).isPresent();
         if (isDuplicate) {
-            throw new DuplicatePasswordException();
+            throw MemberException.fromErrorCode(DUPLICATE_PASSWORD);
         }
     }
 }
