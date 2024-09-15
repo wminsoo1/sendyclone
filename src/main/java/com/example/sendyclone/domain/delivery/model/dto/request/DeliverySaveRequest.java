@@ -43,6 +43,15 @@ public class DeliverySaveRequest {
     @NotNull(message = "배송 옵션은 필수 입력 항목입니다.")
     private String deliveryOptions;
 
+    public DeliverySaveRequest(DeliveryCategory deliveryCategory, LocalDateTime deliveryDate, Vehicle vehicle, DeliveryAddress deliveryAddress, @Nullable List<DeliveryAddress> stopOverAddresses, String deliveryOptions) {
+        this.deliveryCategory = deliveryCategory;
+        this.deliveryDate = deliveryDate;
+        this.vehicle = vehicle;
+        this.deliveryAddress = deliveryAddress;
+        this.stopOverAddresses = stopOverAddresses;
+        this.deliveryOptions = deliveryOptions;
+    }
+
     public Delivery toDelivery() {
         return Delivery.builder()
                 .deliveryCategory(deliveryCategory)

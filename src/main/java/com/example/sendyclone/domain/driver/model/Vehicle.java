@@ -23,9 +23,9 @@ public class Vehicle {
     @Enumerated(value = EnumType.STRING)
     private VehicleType vehicleType;
 
-    private Vehicle(Vehicle vehicle) {
-        this.vehicleWeight = vehicle.getVehicleWeight();
-        this.vehicleType = vehicle.getVehicleType();
+    public Vehicle(VehicleWeight vehicleWeight, VehicleType vehicleType) {
+        this.vehicleWeight = vehicleWeight;
+        this.vehicleType = vehicleType;
     }
 
     public Vehicle update(Vehicle vehicle) {
@@ -33,7 +33,7 @@ public class Vehicle {
         this.vehicleWeight = vehicle.getVehicleWeight();
         this.vehicleType = vehicle.getVehicleType();
 
-        return new Vehicle(vehicle);
+        return new Vehicle(vehicle.getVehicleWeight(), vehicle.getVehicleType());
     }
 
     private void validateVehicleExist(Vehicle vehicle) {

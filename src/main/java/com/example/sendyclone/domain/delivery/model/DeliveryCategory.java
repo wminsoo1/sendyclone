@@ -23,4 +23,9 @@ public class DeliveryCategory {
     protected DeliveryCategory() {
 
     }
+
+    public DeliveryCategory(DeliveryType deliveryType, PersonalDeliveryCategory deliveryPersonalCategory) {
+        this.deliveryType = deliveryType;
+        this.deliveryPersonalCategory = deliveryPersonalCategory;
+    }
 }

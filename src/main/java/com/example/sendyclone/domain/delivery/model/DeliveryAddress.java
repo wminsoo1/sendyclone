@@ -20,7 +20,7 @@ public class DeliveryAddress {
     private String pickupLocation;
     private String dropLocation;
 
-    private DeliveryAddress(String pickupLocation, String dropLocation) {
+    public DeliveryAddress(String pickupLocation, String dropLocation) {
         this.pickupLocation = pickupLocation;
         this.dropLocation = dropLocation;
     }
