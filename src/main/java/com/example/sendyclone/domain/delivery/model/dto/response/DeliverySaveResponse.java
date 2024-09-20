@@ -16,6 +16,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeliverySaveResponse {
 
+    private Long memberId;
+
     private String reservationNumber;
 
     @Embedded
@@ -36,7 +38,8 @@ public class DeliverySaveResponse {
 
     private double deliveryFee; //BigDemical
 
-    private DeliverySaveResponse(String reservationNumber, DeliveryCategory deliveryCategory, LocalDateTime deliveryDate, Vehicle vehicle, DeliveryAddress deliveryAddress, List<DeliveryAddress> stopOverAddresses, String deliveryOptions, double deliveryFee) {
+    private DeliverySaveResponse(Long memberId, String reservationNumber, DeliveryCategory deliveryCategory, LocalDateTime deliveryDate, Vehicle vehicle, DeliveryAddress deliveryAddress, List<DeliveryAddress> stopOverAddresses, String deliveryOptions, double deliveryFee) {
+        this.memberId = memberId;
         this.reservationNumber = reservationNumber;
         this.deliveryCategory = deliveryCategory;
         this.deliveryDate = deliveryDate;
@@ -49,6 +52,7 @@ public class DeliverySaveResponse {
 
     public static DeliverySaveResponse from(final Delivery delivery, final List<DeliveryAddress> stopOverAddresses) {
         return new DeliverySaveResponse(
+                delivery.getMember().getId(),
                 delivery.getReservationNumber(),
                 delivery.getDeliveryCategory(),
                 delivery.getDeliveryDate(),
@@ -57,5 +61,20 @@ public class DeliverySaveResponse {
                 stopOverAddresses,
                 delivery.getDeliveryOptions(),
                 delivery.getDeliveryFee());
+    }
+
+    @Override
+    public String toString() {
+        return "DeliverySaveResponse{" +
+                "memberId=" + memberId +
+                ", reservationNumber='" + reservationNumber + '\'' +
+                ", deliveryCategory=" + deliveryCategory +
+                ", deliveryDate=" + deliveryDate +
+                ", vehicle=" + vehicle +
+                ", deliveryAddress=" + deliveryAddress +
+                ", stopOverAddresses=" + stopOverAddresses +
+                ", deliveryOptions='" + deliveryOptions + '\'' +
+                ", deliveryFee=" + deliveryFee +
+                '}';
     }
 }

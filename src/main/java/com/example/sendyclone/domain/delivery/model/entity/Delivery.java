@@ -91,4 +91,21 @@ public class Delivery {
         this.deliveryFee = deliveryFee;
         this.deliveryOptions = deliveryOptions;
     }
+
+    @Override
+    public String toString() {
+        return "Delivery{" +
+                "id=" + id +
+                ", member=" + member +
+                ", driver=" + driver +
+                ", deliveryStatus=" + deliveryStatus +
+                ", reservationNumber='" + reservationNumber + '\'' +
+                ", deliveryCategory=" + deliveryCategory +
+                ", deliveryDate=" + deliveryDate +
+                ", vehicle=" + vehicle +
+                ", deliveryAddress=" + deliveryAddress +
+                ", deliveryFee=" + deliveryFee +
+                ", deliveryOptions='" + deliveryOptions + '\'' +
+                '}';
+    }
 }

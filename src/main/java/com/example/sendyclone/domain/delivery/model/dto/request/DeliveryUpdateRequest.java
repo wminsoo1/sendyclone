@@ -33,4 +33,12 @@ public class DeliveryUpdateRequest {
     @Embedded
     @Nullable
     private List<DeliveryAddress> stopOverAddresses;
+
+    public DeliveryUpdateRequest(DeliveryAddress deliveryAddress, Vehicle vehicle, LocalDateTime deliveryDate, String deliveryOptions, @Nullable List<DeliveryAddress> stopOverAddresses) {
+        this.deliveryAddress = deliveryAddress;
+        this.vehicle = vehicle;
+        this.deliveryDate = deliveryDate;
+        this.deliveryOptions = deliveryOptions;
+        this.stopOverAddresses = stopOverAddresses;
+    }
 }
