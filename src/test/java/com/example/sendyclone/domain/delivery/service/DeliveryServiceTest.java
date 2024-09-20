@@ -10,6 +10,7 @@ import com.example.sendyclone.domain.delivery.model.entity.Delivery;
 import com.example.sendyclone.domain.delivery.model.entity.StopOver;
 import com.example.sendyclone.domain.delivery.repository.DeliveryRepository;
 import com.example.sendyclone.domain.delivery.repository.StopOverRepository;
+import com.example.sendyclone.domain.delivery.utils.ReservationNumberGenerator;
 import com.example.sendyclone.domain.driver.model.Vehicle;
 import com.example.sendyclone.domain.driver.model.VehicleType;
 import com.example.sendyclone.domain.driver.model.VehicleWeight;
@@ -17,6 +18,10 @@ import com.example.sendyclone.domain.member.exception.MemberErrorCode;
 import com.example.sendyclone.domain.member.exception.MemberException;
 import com.example.sendyclone.domain.member.model.entity.Member;
 import com.example.sendyclone.domain.member.repository.MemberRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceUnit;
 import org.awaitility.core.DeadlockException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,10 +33,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.*;
 
 import static com.example.sendyclone.domain.member.exception.MemberErrorCode.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,14 +73,15 @@ class DeliveryServiceTest {
     void saveDeliveryWhenNoStopOvers() {
         //given
         Long validMemberId = 1L;
-        DeliverySaveRequest deliverySaveRequest = createDummyDeliverySaveRequestWithoutStopOvers();
-        Delivery delivery = deliverySaveRequest.toDelivery();
         Member member = Member.builder()
                 .id(validMemberId)
                 .name("aaa")
                 .email("aaa@nabver.com")
                 .password("aaaaaaa!")
                 .build();
+        Delivery delivery = createDelivery(1L);
+        delivery.updateMember(member);
+        DeliverySaveRequest deliverySaveRequest = createDummyDeliverySaveRequestWithoutStopOvers();
 
         given(memberRepository.findById(validMemberId)).willReturn(Optional.ofNullable(member));
         given(deliveryRepository.save(any(Delivery.class))).willReturn(delivery);
@@ -96,18 +100,19 @@ class DeliveryServiceTest {
     void saveDeliveryWhenStopOvers() {
         //given
         Long validMemberId = 1L;
-        DeliverySaveRequest deliverySaveRequest = createDummyDeliverySaveRequestWithStopOvers();
-        Delivery delivery = deliverySaveRequest.toDelivery();
-        StopOver stopOver = StopOver.builder()
-                .delivery(delivery)
-                .deliveryAddress(new DeliveryAddress("중간 정거장1", "중간 정거장2"))
-                .build();
         Member member = Member.builder()
                 .id(validMemberId)
                 .name("aaa")
                 .email("aaa@nabver.com")
                 .password("aaaaaaa!")
                 .build();
+        Delivery delivery = createDelivery(1L);
+        delivery.updateMember(member);
+        StopOver stopOver = StopOver.builder()
+                .delivery(delivery)
+                .deliveryAddress(new DeliveryAddress("중간 정거장1", "중간 정거장2"))
+                .build();
+        DeliverySaveRequest deliverySaveRequest = createDummyDeliverySaveRequestWithStopOvers();
 
         given(memberRepository.findById(validMemberId)).willReturn(Optional.ofNullable(member));
         given(deliveryRepository.save(any(Delivery.class))).willReturn(delivery);
@@ -123,8 +128,25 @@ class DeliveryServiceTest {
         verify(stopOverRepository).save(any(StopOver.class));
     }
 
+    private Delivery createDelivery(long deliveryCount) {
+        DeliveryCategory deliveryCategory = new DeliveryCategory(DeliveryType.PERSONAL, PersonalDeliveryCategory.PERSONAL_GENERAL_CARGO);
+        LocalDateTime deliveryDate = LocalDateTime.of(2024, 9, 12, 14, 30);
+        Vehicle vehicle = new Vehicle(VehicleWeight.DAMAS, VehicleType.FREEZER);
+        DeliveryAddress deliveryAddress = new DeliveryAddress("부산대역", "장전역");
+        long deliveryOption = 1L;
+        String deliveryOptions = "문 앞에 놓아주세요" + deliveryOption++;
+        String reservationNumber = ReservationNumberGenerator.withDate(deliveryCount);
 
-
+        return Delivery.builder()
+                .id(1L)
+                .reservationNumber(reservationNumber)
+                .deliveryCategory(deliveryCategory)
+                .deliveryDate(deliveryDate)
+                .vehicle(vehicle)
+                .deliveryAddress(deliveryAddress)
+                .deliveryOptions(deliveryOptions)
+                .build();
+    }
 
     private DeliverySaveRequest createDummyDeliverySaveRequestWithoutStopOvers() {
         DeliveryCategory deliveryCategory = new DeliveryCategory(DeliveryType.PERSONAL, PersonalDeliveryCategory.PERSONAL_GENERAL_CARGO);
@@ -132,7 +154,8 @@ class DeliveryServiceTest {
         Vehicle vehicle = new Vehicle(VehicleWeight.DAMAS, VehicleType.FREEZER);
         DeliveryAddress deliveryAddress = new DeliveryAddress("부산대역", "장전역");
         List<DeliveryAddress> stopOverAddresses = Collections.emptyList(); // 경유지가 없음
-        String deliveryOptions = "문 앞에 놓아주세요";
+        long deliveryOption = 1L;
+        String deliveryOptions = "문 앞에 놓아주세요" + deliveryOption++;
 
         return new DeliverySaveRequest(
                 deliveryCategory,

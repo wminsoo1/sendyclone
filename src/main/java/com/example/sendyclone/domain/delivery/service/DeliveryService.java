@@ -46,9 +46,12 @@ public class DeliveryService {
         delivery.updateMember(member);
         delivery.updateDeliveryFee(10000); //결제금액은 프론트에서 결정
 
-        delivery.updateReservationNumber(ReservationNumberGenerator.withDate(deliveryRepository.count()));
+        final Delivery savedDelivery;
+        synchronized (this) { //서버 여러개 일 때 문제 생길듯 저장 할때는 @Lock 이용을 못함 잠글 레코드가 없음
+            delivery.updateReservationNumber(ReservationNumberGenerator.withDate(deliveryRepository.count()));
+            savedDelivery = deliveryRepository.save(delivery);
+        }
 
-        final Delivery savedDelivery = deliveryRepository.save(delivery);
         final List<DeliveryAddress> deliveryAddresses = saveStopOvers(deliverySaveRequest, savedDelivery);
 
         return DeliverySaveResponse.from(savedDelivery, deliveryAddresses);
@@ -73,25 +76,6 @@ public class DeliveryService {
         delivery.update(deliveryUpdateRequest);
         if (deliveryUpdateRequest.getDeliveryAddress() != null) {
             updateStopOver(deliveryId, deliveryUpdateRequest, delivery);
-        }
-    }
-
-    private void updateStopOver(Long deliveryId, DeliveryUpdateRequest deliveryUpdateRequest, Delivery delivery) {
-        List<DeliveryAddress> stopOverAddresses = deliveryUpdateRequest.getStopOverAddresses();
-        List<StopOver> stopOverByDeliveryId = stopOverRepository.findStopOverByDeliveryId(deliveryId);
-        if (stopOverByDeliveryId == null) {
-            DeliveryException.fromErrorCode(STOPOVER_NOT_FOUND);
-        }
-
-        List<StopOver> stopOversToDelete = findStopOversToDelete(stopOverByDeliveryId, stopOverAddresses);
-        List<DeliveryAddress> stopOversToAdd = findDeliveryAddressToAdd(stopOverAddresses, stopOverByDeliveryId);
-
-        for (StopOver stopOver : stopOversToDelete) {
-            System.out.println("stopOver = " + stopOver);
-        }
-        stopOverRepository.deleteAll(stopOversToDelete);
-        for (DeliveryAddress address : stopOversToAdd) {
-            saveStopOver(address, delivery);
         }
     }
 
@@ -129,6 +113,25 @@ public class DeliveryService {
                     return DeliverySummaryResponse.from(delivery, size);
                 })
                 .toList();
+    }
+
+    private void updateStopOver(Long deliveryId, DeliveryUpdateRequest deliveryUpdateRequest, Delivery delivery) {
+        List<DeliveryAddress> stopOverAddresses = deliveryUpdateRequest.getStopOverAddresses();
+        List<StopOver> stopOverByDeliveryId = stopOverRepository.findStopOverByDeliveryId(deliveryId);
+        if (stopOverByDeliveryId == null) {
+            DeliveryException.fromErrorCode(STOPOVER_NOT_FOUND);
+        }
+
+        List<StopOver> stopOversToDelete = findStopOversToDelete(stopOverByDeliveryId, stopOverAddresses);
+        List<DeliveryAddress> stopOversToAdd = findDeliveryAddressToAdd(stopOverAddresses, stopOverByDeliveryId);
+
+        for (StopOver stopOver : stopOversToDelete) {
+            System.out.println("stopOver = " + stopOver);
+        }
+        stopOverRepository.deleteAll(stopOversToDelete);
+        for (DeliveryAddress address : stopOversToAdd) {
+            saveStopOver(address, delivery);
+        }
     }
 
     private static List<DeliveryAddress> findDeliveryAddressToAdd(List<DeliveryAddress> stopOverAddresses, List<StopOver> stopOverByDeliveryId) {
