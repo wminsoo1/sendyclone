@@ -38,6 +38,9 @@ dependencies {
 
 	runtimeOnly 'com.h2database:h2'
 
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+
 	//Querydsl 추가
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
@@ -47,6 +50,10 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach { //설정 안하면 cache 파리미터에 null값 들어감
+	options.compilerArgs << "-parameters"
 }
 
 clean {

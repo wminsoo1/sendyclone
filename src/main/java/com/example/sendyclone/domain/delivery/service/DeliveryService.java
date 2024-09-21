@@ -17,6 +17,8 @@ import com.example.sendyclone.domain.member.exception.MemberException;
 import com.example.sendyclone.domain.member.model.entity.Member;
 import com.example.sendyclone.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,6 +81,7 @@ public class DeliveryService {
         }
     }
 
+    @Cacheable(value = "deliveryDetails", key = "#a0 + '_' + #a1", cacheManager = "cacheManager")
     public DeliveryDetailResponse getDeliveryDetail(String reservationNumber, Long memberId) {
         validatedMemberExisted(memberId);
         validatedReservationNumberExist(reservationNumber);
