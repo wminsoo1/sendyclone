@@ -14,11 +14,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        indexes = {
+                @Index(name = "idx_member_delivery_status", columnList = "member_id, delivery_status")
+        }
+)
 public class Delivery {
 
     @Id
@@ -36,7 +42,7 @@ public class Delivery {
     @Enumerated(value = EnumType.STRING)
     private DeliveryStatus deliveryStatus; //결제 추가하면 상태도 추가 해줘야 함
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String reservationNumber;
 
     @Embedded
@@ -107,5 +113,18 @@ public class Delivery {
                 ", deliveryFee=" + deliveryFee +
                 ", deliveryOptions='" + deliveryOptions + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Delivery delivery = (Delivery) object;
+        return Double.compare(deliveryFee, delivery.deliveryFee) == 0 && Objects.equals(id, delivery.id) && Objects.equals(member, delivery.member) && Objects.equals(driver, delivery.driver) && deliveryStatus == delivery.deliveryStatus && Objects.equals(reservationNumber, delivery.reservationNumber) && Objects.equals(deliveryCategory, delivery.deliveryCategory) && Objects.equals(deliveryDate, delivery.deliveryDate) && Objects.equals(vehicle, delivery.vehicle) && Objects.equals(deliveryAddress, delivery.deliveryAddress) && Objects.equals(deliveryOptions, delivery.deliveryOptions);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, member, driver, deliveryStatus, reservationNumber, deliveryCategory, deliveryDate, vehicle, deliveryAddress, deliveryFee, deliveryOptions);
     }
 }

@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 
 @Entity
 @Builder
@@ -26,10 +28,13 @@ public class Member {
     @Column(nullable = false, unique = true)
     private String email;
 
-    private Member(Long id, String name, String password, String email) {
+    private BigDecimal balance;
+
+    private Member(Long id, String name, String password, String email, BigDecimal balance) {
         this.id = id;
         this.name = name;
         this.password = password;
         this.email = email;
+        this.balance = balance;
     }
 }

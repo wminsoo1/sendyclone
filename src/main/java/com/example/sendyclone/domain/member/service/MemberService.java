@@ -7,6 +7,7 @@ import com.example.sendyclone.domain.member.model.request.MemberSaveRequest;
 import com.example.sendyclone.domain.member.model.response.MemberSaveResponse;
 import com.example.sendyclone.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import static com.example.sendyclone.domain.member.exception.MemberErrorCode.*;
@@ -22,7 +23,12 @@ public class MemberService {
 
         final Member member = memberSaveRequest.toMember();
 
-        final Member savedMember = memberRepository.save(member);
+        Member savedMember;
+        try {
+            savedMember = memberRepository.save(member);
+        } catch (DataIntegrityViolationException e) {
+            throw new MemberException(DUPLICATE_PASSWORD);
+        }
 
         return MemberSaveResponse.fromMember(savedMember);
     }
