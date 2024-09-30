@@ -12,6 +12,9 @@ public interface StopOverRepository extends JpaRepository<StopOver, Long> {
     @Query("select s from StopOver s join fetch s.delivery d where d.id = :deliveryId")
     List<StopOver> findStopOverByDeliveryId(@Param("deliveryId") Long deliveryId);
 
+    @Query("select s from StopOver s join fetch s.delivery d where d.reservationNumber = :reservationNumber")
+    List<StopOver> findStopOverByReservationNumber(@Param("reservationNumber") String reservationNumber);
+
     @Query("select s from StopOver s join fetch s.delivery d where d.id IN :deliveryIds")
     List<StopOver> findStopOverByDeliveryIds(@Param("deliveryIds") List<Long> deliveryIds);
 }

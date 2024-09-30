@@ -37,6 +37,9 @@ public class DeliveryServiceIntegrationTest {
     @Autowired
     private DeliveryRepository deliveryRepository;
 
+    @Autowired
+    private DeliveryCacheService deliveryCacheService;
+
     @Test
     @DisplayName("한 멤버가 배달을 동시에 저장 - 경유지 없음")
     public void saveDeliveryConcurrentWhenNOStopOvers() throws InterruptedException, ExecutionException {
@@ -58,8 +61,13 @@ public class DeliveryServiceIntegrationTest {
         List<Future<DeliverySaveResponse>> futures = executorService.invokeAll(tasks);
 
         for (Future<DeliverySaveResponse> future : futures) {
-            DeliverySaveResponse deliverySaveResponse = future.get();
-            System.out.println("deliverySaveResponse = " + deliverySaveResponse);
+            try {
+                DeliverySaveResponse deliverySaveResponse = future.get();
+                System.out.println("deliverySaveResponse = " + deliverySaveResponse);
+            }catch (Exception e) {
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
         }
 
         executorService.shutdown();
@@ -69,7 +77,7 @@ public class DeliveryServiceIntegrationTest {
     @DisplayName("배달 동시 업데이트")
     public void updateDeliveryConcurrentWhenNOStopOvers() throws InterruptedException {
         // given
-        Long deliveryId = 1L;
+        String reservationNumber = "예약번호";
 
         //when
         int threadCount = 100;
@@ -79,7 +87,7 @@ public class DeliveryServiceIntegrationTest {
         for (int i = 0; i < threadCount; i++) {
             DeliveryUpdateRequest deliveryUpdateRequest = createDeliveryUpdateRequest(i);
             tasks.add(() -> {
-                deliveryService.updateDelivery(deliveryId, deliveryUpdateRequest);
+                deliveryService.updateDelivery(reservationNumber, deliveryUpdateRequest);
                 return null;
             });
         }

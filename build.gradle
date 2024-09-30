@@ -53,7 +53,9 @@ tasks.named('test') {
 }
 
 tasks.withType(JavaCompile).configureEach { //설정 안하면 cache 파리미터에 null값 들어감
-	options.compilerArgs << "-parameters"
+	configure(options) {
+		options.compilerArgs << '-parameters'
+	}
 }
 
 clean {

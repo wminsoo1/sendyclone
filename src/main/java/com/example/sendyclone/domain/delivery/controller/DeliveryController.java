@@ -31,17 +31,17 @@ public class DeliveryController {
         return ResponseEntity.ok().body(deliverySaveResponse);
     }
 
-    @PostMapping("/delivery/update/{deliveryId}")
+    @PostMapping("/delivery/update/{reservationNumber}")
     public void updateDelivery(
-            @PathVariable("deliveryId") Long deliveryId, //Spring Security 추가하면 변경!
+            @PathVariable("reservationNumber") String reservationNumber, //Spring Security 추가하면 변경!
             @Valid @RequestBody DeliveryUpdateRequest deliveryUpdateRequest) {
-        deliveryService.updateDelivery(deliveryId, deliveryUpdateRequest);
+        deliveryService.updateDelivery(reservationNumber, deliveryUpdateRequest);
     }
 
-    @DeleteMapping("/delivery/delete/{deliveryId}")
+    @DeleteMapping("/delivery/delete/{reservationNumber}")
     public void deleteDelivery(
-            @PathVariable("deliveryId") Long deliveryId) {
-        deliveryService.deleteDelivery(deliveryId);
+            @PathVariable("reservationNumber") String reservationNumber) {
+        deliveryService.deleteDelivery(reservationNumber);
     }
 
     @GetMapping("/deliveryDetail")
@@ -57,6 +57,14 @@ public class DeliveryController {
     public ResponseEntity<List<DeliverySummaryResponse>> getDeliveriesSummary(
             @RequestHeader("memberId") Long memberId) {
         final List<DeliverySummaryResponse> deliveriesSummary = deliveryService.getDeliveriesSummary(memberId);
+
+        return ResponseEntity.ok().body(deliveriesSummary);
+    }
+
+    @GetMapping("/deliverys/cache")
+    public ResponseEntity<List<DeliverySummaryResponse>> getDeliverySummariesWithCache(
+            @RequestHeader("memberId") Long memberId) {
+        final List<DeliverySummaryResponse> deliveriesSummary = deliveryService.getDeliverySummariesWithCache(memberId);
 
         return ResponseEntity.ok().body(deliveriesSummary);
     }
